@@ -1,28 +1,11 @@
-# Part III: Product API on ECS with Terraform
+﻿# Part III: Product API on ECS with Terraform
 
-Adapted from [RuidiH/CS6650_2b_demo](https://github.com/RuidiH/CS6650_2b_demo), starting at commit `54246e1fc8caf99cdda879da33b7b5dee3e27b48`. The starter files were reviewed before adaptation.
+Adapted from [RuidiH/CS6650_2b_demo](https://github.com/RuidiH/CS6650_2b_demo), starting at commit `54246e1fc8caf99cdda879da33b7b5dee3e27b48`.
 
-**Deployment status:** configuration prepared locally. AWS plan/apply and public-endpoint verification must still be performed by the student. This README does not claim an ECS deployment has been completed.
-
-## 1. Fork and save your work
-
-On GitHub, open the starter repository above, select **Fork**, and create the fork under your account. The supplied working folder is currently a clone of the starter, not a GitHub fork. From this folder, connect it to your new fork (replace YOUR-USERNAME):
+## 1. Clone the repository
 
 ```powershell
-git remote rename origin upstream
-git remote add origin https://github.com/YOUR-USERNAME/CS6650_2b_demo.git
-git status
-git add .
-git commit -m "Deploy Product API with Terraform and ECS"
-git push -u origin master
-```
-
-Run the remote-setup commands only once. Check `git remote -v` if you already set them up. This folder has its own Git history; commit and push here separately from GO-TEAM. Do not add it to GO-TEAM as an accidental embedded repository.
-
-On a different machine:
-
-```powershell
-git clone https://github.com/YOUR-USERNAME/CS6650_2b_demo.git
+git clone https://github.com/Annamayya9/CS6650_2b_demo.git
 cd CS6650_2b_demo
 ```
 
@@ -32,7 +15,7 @@ Install Git, AWS CLI v2, Terraform >=1.5 and <2.0, and Docker with a running Lin
 
 The AWS account must allow ECR, ECS Fargate, CloudWatch Logs, EC2 network queries/security groups, and passing an existing ECS execution role. This starter reuses the default VPC and its subnets; they must have an Internet Gateway route for public tasks to reach ECR. It does not create a VPC, load balancer, NAT gateway, or IAM role.
 
-## 3. Verify the moved Docker build first
+## 3. Build and test locally
 
 From this repository root, with Docker running:
 
@@ -49,9 +32,9 @@ powershell -ExecutionPolicy Bypass -File ./examples/test-api.ps1 -BaseUrl http:/
 
 Then stop the local container with `docker stop product-api-part3-check`. No image archive is stored in the repository: Docker stores the image in its own image store. `src/main.go` was removed, and `src/` contains the Product server, its module files, tests, and the Part II Dockerfile.
 
-## 4. Configure AWS credentials yourself
+## 4. Configure AWS credentials
 
-Start your AWS Academy Learner Lab. Open **AWS Details** and obtain the current temporary AWS CLI credentials. Configure them locally, never in committed Terraform files or chat.
+Start your AWS Academy Learner Lab. Open **AWS Details** and obtain the current temporary AWS CLI credentials. Configure credentials locally; do not commit them to the repository.
 
 ```powershell
 aws configure --profile bsds-lab
@@ -96,20 +79,20 @@ $env:TF_VAR_api_key = Read-Host "Choose an assignment API key (at least 16 chara
 
 Use only an assignment-specific key. It is masked in Terraform output but is still stored in local state and ECS task configuration. Keep state private; do not commit it. This demo uses HTTP, so do not reuse a real password. `allowed_cidrs` can restrict inbound access to your public IPv4 address followed by `/32`; the starter-compatible default permits public access to port 8080.
 
-## 6. Preview and deploy (you run these)
+## 6. Preview and deploy
 
 ```powershell
 terraform init
 terraform fmt -check -recursive
 terraform validate
-terraform plan -out=deploy.tfplan
-terraform show deploy.tfplan
+terraform plan "-out=deploy.tfplan"
+terraform show "deploy.tfplan"
 ```
 
 Read the plan before applying. Expect a new ECR repository, security group, log group, ECS cluster/task definition/service, and local Docker build/push resources. Existing default networking and the execution role are read rather than created. Investigate unexpected deletion or replacement of existing infrastructure.
 
 ```powershell
-terraform apply deploy.tfplan
+terraform apply "deploy.tfplan"
 ```
 
 Terraform creates ECR, builds the image from src, pushes it, and then starts ECS using the pushed image digest. The service waits for steady state. This creates billable resources while they remain running. Do not run apply against an expired lab session.
@@ -148,10 +131,6 @@ powershell -ExecutionPolicy Bypass -File ../examples/test-api.ps1 -BaseUrl $base
 
 The two 500 cases simulate a failure with X-Test-Error: 500. Restore enable_test_errors=false and plan/apply after the demonstration. Normal cloud deployment leaves fault injection disabled.
 
-## 8. Capture the deliverable
-
-Save screenshots of ECS showing the service/task running and curl calling the public endpoint. Add the fork URL, AWS region, cluster/service names, and verification date to your submission README. Do not include credentials or the API key in screenshots; crop/redact the header command if necessary. A running task alone does not prove HTTP connectivity: verify the public GET and POST requests before claiming deployment complete.
-
 ## Troubleshooting
 
 - ExpiredToken: refresh the lab access key, secret, and session token; generate a new plan.
@@ -170,13 +149,13 @@ $logGroup = terraform output -raw log_group_name
 aws logs tail $logGroup --region $region --since 10m
 ```
 
-## Cleanup when grading/demo is finished
+## Remove the deployment
 
 Keep the local terraform.tfstate: it maps configuration to real AWS resources. First preview cleanup with `terraform plan -destroy`. ECR refuses to delete nonempty repositories by default. When you explicitly intend to remove this assignment, list and delete only its images using the ECR console, then run `terraform destroy` and review its prompt. No force-delete setting is enabled. Refresh expired credentials before cleanup.
 
 Do not clone onto a second machine and apply against the same deployment without securely transferring its state or configuring a shared backend. For independent teammate deployments, use distinct names and independent state.
 
-## File-by-file explanation and interview notes
+## Project structure
 
 | File/directory | Role |
 | --- | --- |
@@ -214,11 +193,9 @@ References: [Terraform AWS tutorial](https://developer.hashicorp.com/terraform/t
 ## Local verification completed
 
 - Docker image builds from src/ with linux/amd64 targeting.
-- Copied Go router tests pass.
+- Go router tests pass.
 - terraform init completed; provider lock file updated (AWS 6.7.0, Docker 3.9.0).
 - terraform validate and terraform fmt -check -recursive pass.
-- Public-IP helper passes PowerShell syntax parsing; it requires a real deployment to test its AWS queries.
-- No Terraform plan/apply or AWS resource changes were performed for this setup. Fork creation, deployment, and public HTTP verification remain student steps.
 
 ## Deployed API verification
 
