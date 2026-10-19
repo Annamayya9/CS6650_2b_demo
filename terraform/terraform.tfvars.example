@@ -1,0 +1,11 @@
+# Copy to terraform.tfvars and customize. Credentials/API key must not go here.
+aws_region          = "us-east-1"
+service_name        = "assignment5-product-api"
+ecr_repository_name = "assignment5-product-api"
+container_port      = 8080
+execution_role_name = "LabRole"
+enable_test_errors  = false
+# Windows Docker Desktop only; omit or change for Linux/macOS.
+docker_host = "npipe:////./pipe/docker_engine"
+# Optional: replace with your current public IPv4 address followed by /32.
+allowed_cidrs = ["0.0.0.0/0"]

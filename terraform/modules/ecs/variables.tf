@@ -60,3 +60,12 @@ variable "memory" {
   default     = "512"
   description = "Memory (MiB)"
 }
+
+variable "api_key" {
+  type      = string
+  sensitive = true
+}
+variable "enable_test_errors" {
+  type    = bool
+  default = false
+}

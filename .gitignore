@@ -1,4 +1,14 @@
-**.tfvars
-**.tfstate
-**.tfstate.*
 **/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+*.tfplan
+crash.log
+crash.*.log
+.env
+.env.*
+*.pem
+*.exe
+*.tar
+# Commit .terraform.lock.hcl: it pins provider versions/checksums.
