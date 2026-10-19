@@ -219,3 +219,11 @@ References: [Terraform AWS tutorial](https://developer.hashicorp.com/terraform/t
 - terraform validate and terraform fmt -check -recursive pass.
 - Public-IP helper passes PowerShell syntax parsing; it requires a real deployment to test its AWS queries.
 - No Terraform plan/apply or AWS resource changes were performed for this setup. Fork creation, deployment, and public HTTP verification remain student steps.
+
+## Deployed API verification
+
+The screenshot shows the public endpoint, a successful GET (200),
+a successful POST update (204), and a second GET (200) confirming
+the updated product.
+
+![Deployed GET and POST results](screenshots/deployed-api.png)
